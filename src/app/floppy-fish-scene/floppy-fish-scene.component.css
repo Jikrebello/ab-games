@@ -1,0 +1,27 @@
+.canvas-container {
+  display: flex;
+  justify-content: center; /* Center the canvas horizontally */
+  align-items: center; /* Center the canvas vertically */
+  width: 100vw; /* Full viewport width */
+  height: 100vh; /* Full viewport height */
+  box-sizing: border-box;
+}
+
+canvas {
+  width: 800px; /* Set fixed width */
+  height: 600px; /* Set fixed height */
+  border: 1px solid #000; /* Optional border for visual reference */
+  aspect-ratio: 4 / 3; /* Lock aspect ratio (4:3 in this case) */
+}
+
+.overlay-message {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #fff; /* White text */
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  font-size: 1.5rem;
+  text-align: center;
+}
