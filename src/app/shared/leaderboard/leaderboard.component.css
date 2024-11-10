@@ -23,3 +23,14 @@ th {
 tr:nth-child(even) {
   background-color: #f2f2f24c;
 }
+
+.leaderboard-button {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  cursor: pointer;
+  border: none;
+  border-radius: 5px;
+  background-color: #007bff;
+  color: #fff;
+}
