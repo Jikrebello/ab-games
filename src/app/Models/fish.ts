@@ -6,7 +6,7 @@ export class Fish {
   private gravity = -0.0015;
   private flopStrength = 0.05;
   private boundingBox: THREE.Box3;
-  private fishSize: number = 0.7;
+  private fishSize: number = 0.5;
 
   /**
    * Create the geometry and material for the fish, bind it to a mesh and add it to the scene

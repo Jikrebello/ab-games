@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { HighScore } from '../Interfaces/highScore';
-import { LeaderboardService } from './../Services/leaderboard.service';
+import { HighScore } from '../../Interfaces/highScore';
+import { LeaderboardService } from '../../Services/leaderboard.service';
 
 @Component({
   selector: 'app-leaderboard',

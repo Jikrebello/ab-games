@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
-import { FloppyFishSceneComponent } from './floppy-fish-scene/floppy-fish-scene.component';
-import { LeaderboardComponent } from './leaderboard/leaderboard.component';
+import { FloppyFishSceneComponent } from './floppyfish/floppy-fish-scene/floppy-fish-scene.component';
+import { LeaderboardComponent } from './shared/leaderboard/leaderboard.component';
 
 export const routes: Routes = [
   { path: '', component: FloppyFishSceneComponent },

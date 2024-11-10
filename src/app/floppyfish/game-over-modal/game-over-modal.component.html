@@ -4,6 +4,8 @@
     <p>Final Score: {{ score }}</p>
     <input [(ngModel)]="playerName" placeholder="Enter your name" />
     <button (click)="onPlayAgain()">Play Again</button>
-    <button routerLink="/leaderboard">View Highscores</button>
+    <button routerLink="/leaderboard" (click)="onPlayAgain()">
+      View Leaderboard
+    </button>
   </div>
 </div>
