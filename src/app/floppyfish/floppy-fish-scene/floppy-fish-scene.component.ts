@@ -10,8 +10,8 @@ import {
 } from '@angular/core';
 import * as THREE from 'three';
 import { GameState } from '../../Enums/GameState';
-import { Fish } from '../../Models/fish';
-import { Pillar } from '../../Models/pillar';
+import { Fish } from '../Models/fish';
+import { Pillar } from '../Models/pillar';
 import { GameOverModalComponent } from '../game-over-modal/game-over-modal.component';
 
 @Component({
