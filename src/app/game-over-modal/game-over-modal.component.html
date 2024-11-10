@@ -2,6 +2,8 @@
   <div class="modal-content">
     <h2>Game Over</h2>
     <p>Final Score: {{ score }}</p>
+    <input [(ngModel)]="playerName" placeholder="Enter your name" />
     <button (click)="onPlayAgain()">Play Again</button>
+    <button routerLink="/leaderboard">View Highscores</button>
   </div>
 </div>

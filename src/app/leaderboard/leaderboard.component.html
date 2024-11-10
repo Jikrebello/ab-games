@@ -1,0 +1,22 @@
+<div class="leaderboard-container">
+  <h2>Leaderboard</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Rank</th>
+        <th>Name</th>
+        <th>Score</th>
+        <th>Date</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let score of highScores; let i = index">
+        <td>{{ i + 1 }}</td>
+        <td>{{ score.name }}</td>
+        <td>{{ score.score }}</td>
+        <td>{{ score.timestamp | date: "medium" }}</td>
+      </tr>
+    </tbody>
+  </table>
+  <button routerLink="/">Back to Game</button>
+</div>
