@@ -76,65 +76,86 @@ export class FloppyFishSceneComponent implements OnInit, AfterViewInit {
         this.gameState === GameState.Playing ||
         this.gameState === GameState.GameOver
       ) {
-        // Update the fish position, applying gravity in both states
-        this.fish.animate();
+        this.applyGravity();
 
         if (this.gameState === GameState.Playing) {
-          // Update displayMessage with the current score during gameplay
           this.displayMessage = `${this.score}`;
-
-          // Update and move existing pillars
-          this.pillars.forEach((pillar, index) => {
-            pillar.move();
-
-            // Check if the fish has passed the pillar to increment the score
-            if (
-              !pillar.hasBeenPassed &&
-              pillar.getPositionX() < this.fish.getPositionX()
-            ) {
-              this.score += 1;
-              pillar.hasBeenPassed = true;
-            }
-
-            // Remove pillars that are out of view
-            if (pillar.isOutOfView()) {
-              pillar.remove();
-              this.pillars.splice(index, 1);
-            }
-          });
-
-          // Check for collision or boundary conditions to set game over
-          for (const pillar of this.pillars) {
-            if (this.checkCollision(this.fish.getBoundingBox(), pillar)) {
-              this.triggerGameOver();
-              return; // Stop further checks if game over is triggered
-            }
-          }
-          if (this.fish.getPositionY() < -3.5 || this.fish.getPositionY() > 5) {
-            this.triggerGameOver();
-            return;
-          }
-
-          // Create new pillars as needed
-          if (!this.pillarSpawnInterval) {
-            this.createPillars();
-          }
+          this.updatePillars();
+          this.checkGameOverConditions();
+          this.spawnPillarsIfNeeded();
         }
 
-        // Allow the fish to keep falling after Game Over until it reaches the ground level
-        if (
-          this.gameState === GameState.GameOver &&
-          this.fish.getPositionY() < -3.5
-        ) {
-          this.fish.stopMovement();
-          this.fish.setPositionY(-3.5);
+        if (this.gameState === GameState.GameOver) {
+          this.ensureFishFallsToGround();
         }
       }
 
-      // Render the scene regardless of the game state
       this.renderer.render(this.scene, this.camera);
     }
   };
+
+  /**
+   * Apply gravity to the fish in both Playing and GameOver states
+   */
+  private applyGravity(): void {
+    this.fish.animate();
+  }
+
+  /**
+   * Move pillars and check if any pillars have been passed or are out of view
+   */
+  private updatePillars(): void {
+    this.pillars.forEach((pillar, index) => {
+      pillar.move();
+
+      if (
+        !pillar.hasBeenPassed &&
+        pillar.getPositionX() < this.fish.getPositionX()
+      ) {
+        this.score += 1;
+        pillar.hasBeenPassed = true;
+      }
+
+      if (pillar.isOutOfView()) {
+        pillar.remove();
+        this.pillars.splice(index, 1);
+      }
+    });
+  }
+
+  /**
+   * Check for collision or out-of-bounds conditions to trigger game over
+   */
+  private checkGameOverConditions(): void {
+    if (
+      this.pillars.some((pillar) =>
+        this.checkCollision(this.fish.getBoundingBox(), pillar),
+      ) ||
+      this.fish.getPositionY() < -3.5 ||
+      this.fish.getPositionY() > 5
+    ) {
+      this.triggerGameOver();
+    }
+  }
+
+  /**
+   * Ensure pillars are spawned at set intervals during gameplay
+   */
+  private spawnPillarsIfNeeded(): void {
+    if (!this.pillarSpawnInterval) {
+      this.createPillars();
+    }
+  }
+
+  /**
+   * Allow the fish to keep falling after Game Over until it reaches the ground level
+   */
+  private ensureFishFallsToGround(): void {
+    if (this.fish.getPositionY() < -3.5) {
+      this.fish.stopMovement();
+      this.fish.setPositionY(-3.5);
+    }
+  }
 
   private canvasAndCameraSetup(): void {
     this.renderer = new THREE.WebGLRenderer({
