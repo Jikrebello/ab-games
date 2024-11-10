@@ -12,11 +12,12 @@ import * as THREE from 'three';
 import { GameState } from '../Enums/GameState';
 import { Fish } from '../Models/fish';
 import { Pillar } from '../Models/pillar';
+import { GameOverModalComponent } from '../game-over-modal/game-over-modal.component';
 
 @Component({
   selector: 'app-floppy-fish-scene',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, GameOverModalComponent],
   templateUrl: './floppy-fish-scene.component.html',
   styleUrl: './floppy-fish-scene.component.css',
 })
@@ -32,8 +33,12 @@ export class FloppyFishSceneComponent implements OnInit, AfterViewInit {
   private gameState: GameState = GameState.NewGame;
 
   public displayMessage: string = 'Press Space to Start';
+  public isGameOverModalVisible: boolean = false;
 
   private pillarSpawnInterval: string | number | NodeJS.Timeout | undefined;
+  private spawnRate: number = 800;
+
+  public score: number = 0;
 
   constructor(@Inject(PLATFORM_ID) private platformId: object) {
     this.isBrowser = isPlatformBrowser(this.platformId);
@@ -71,30 +76,52 @@ export class FloppyFishSceneComponent implements OnInit, AfterViewInit {
         this.gameState === GameState.Playing ||
         this.gameState === GameState.GameOver
       ) {
+        // Update the fish position, applying gravity in both states
         this.fish.animate();
 
         if (this.gameState === GameState.Playing) {
+          // Update displayMessage with the current score during gameplay
+          this.displayMessage = `${this.score}`;
+
           // Update and move existing pillars
           this.pillars.forEach((pillar, index) => {
             pillar.move();
+
+            // Check if the fish has passed the pillar to increment the score
+            if (
+              !pillar.hasBeenPassed &&
+              pillar.getPositionX() < this.fish.getPositionX()
+            ) {
+              this.score += 1;
+              pillar.hasBeenPassed = true;
+            }
+
+            // Remove pillars that are out of view
             if (pillar.isOutOfView()) {
               pillar.remove();
               this.pillars.splice(index, 1);
             }
           });
 
+          // Check for collision or boundary conditions to set game over
+          for (const pillar of this.pillars) {
+            if (this.checkCollision(this.fish.getBoundingBox(), pillar)) {
+              this.triggerGameOver();
+              return; // Stop further checks if game over is triggered
+            }
+          }
+          if (this.fish.getPositionY() < -3.5 || this.fish.getPositionY() > 5) {
+            this.triggerGameOver();
+            return;
+          }
+
+          // Create new pillars as needed
           if (!this.pillarSpawnInterval) {
             this.createPillars();
           }
-
-          // Check for game over conditions
-          if (this.fish.getPositionY() < -3.5 || this.fish.getPositionY() > 5) {
-            this.gameState = GameState.GameOver;
-            this.displayMessage = 'Game Over! Press Space to Try Again';
-          }
         }
 
-        // Stop the fish at the ground level during game over
+        // Allow the fish to keep falling after Game Over until it reaches the ground level
         if (
           this.gameState === GameState.GameOver &&
           this.fish.getPositionY() < -3.5
@@ -104,6 +131,7 @@ export class FloppyFishSceneComponent implements OnInit, AfterViewInit {
         }
       }
 
+      // Render the scene regardless of the game state
       this.renderer.render(this.scene, this.camera);
     }
   };
@@ -136,35 +164,43 @@ export class FloppyFishSceneComponent implements OnInit, AfterViewInit {
             this.scene,
             initialXPosition, // Ensure the pillar starts just outside the view to slide in
             yPosition,
-            2,
+            1.8,
           );
           this.pillars.push(newPillar);
-          console.log('New pillar created at x position:', initialXPosition);
         }
-      }, 1000); // Adjust interval as needed to control the spawn rate
+      }, this.spawnRate); // Adjust interval as needed to control the spawn rate
     }
   }
 
   private onSpaceBarPress(event: KeyboardEvent): void {
     if (event.code === 'Space') {
       if (this.gameState === GameState.NewGame) {
+        // Start the game
         this.gameState = GameState.Playing;
+        this.fish.applyFlap();
         this.displayMessage = '';
-      }
-
-      if (this.gameState === GameState.Playing) {
+      } else if (this.gameState === GameState.Playing) {
+        // Apply flap
         this.fish.applyFlap();
       }
-
-      if (this.gameState === GameState.GameOver) {
-        this.resetGame();
-      }
     }
+  }
+
+  private triggerGameOver(): void {
+    this.gameState = GameState.GameOver;
+    this.isGameOverModalVisible = true;
+    this.displayMessage = ''; // Clear display message during game over
+  }
+
+  public onRestartGame(): void {
+    this.resetGame();
+    this.isGameOverModalVisible = false; // Hide the modal
   }
 
   private resetGame(): void {
     this.gameState = GameState.NewGame;
     this.fish.reset();
+    this.score = 0;
     this.displayMessage = 'Press Space to Start';
 
     // Remove all existing pillars from the scene
@@ -178,8 +214,11 @@ export class FloppyFishSceneComponent implements OnInit, AfterViewInit {
     }
   }
 
-  private checkCollision(): boolean {
-    // Collision logic to be added here (e.g., bounding box intersection)
-    return false;
+  private checkCollision(fishBox: THREE.Box3, pillar: Pillar): boolean {
+    // Check for intersection with both top and bottom parts of the pillar
+    return (
+      fishBox.intersectsBox(pillar.getTopBoundingBox()) ||
+      fishBox.intersectsBox(pillar.getBottomBoundingBox())
+    );
   }
 }

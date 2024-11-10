@@ -2,3 +2,9 @@
   <canvas #canvas></canvas>
   <div class="overlay-message" *ngIf="displayMessage">{{ displayMessage }}</div>
 </div>
+
+<app-game-over-modal
+  *ngIf="isGameOverModalVisible"
+  [score]="score"
+  (restartGame)="onRestartGame()"
+></app-game-over-modal>

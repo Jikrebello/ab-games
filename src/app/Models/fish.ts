@@ -3,8 +3,10 @@ import * as THREE from 'three';
 export class Fish {
   private fishMesh: THREE.Mesh;
   private velocity = 0;
-  private gravity = -0.001;
+  private gravity = -0.0015;
   private flopStrength = 0.05;
+  private boundingBox: THREE.Box3;
+  private fishSize: number = 0.7;
 
   /**
    * Create the geometry and material for the fish, bind it to a mesh and add it to the scene
@@ -12,11 +14,15 @@ export class Fish {
    * @param color The color of the fish
    */
   constructor(scene: THREE.Scene, color: number = 0xcc6633) {
-    //
-    const fishGeometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
+    const fishGeometry = new THREE.BoxGeometry(
+      this.fishSize,
+      this.fishSize,
+      this.fishSize,
+    );
     const fishMaterial = new THREE.MeshBasicMaterial({ color });
 
     this.fishMesh = new THREE.Mesh(fishGeometry, fishMaterial);
+    this.boundingBox = new THREE.Box3().setFromObject(this.fishMesh);
     scene.add(this.fishMesh);
   }
 
@@ -26,6 +32,7 @@ export class Fish {
   public animate(): void {
     this.velocity += this.gravity;
     this.fishMesh.position.y += this.velocity;
+    this.boundingBox.setFromObject(this.fishMesh);
   }
 
   /**
@@ -49,6 +56,18 @@ export class Fish {
    */
   public getPositionY(): number {
     return this.fishMesh.position.y;
+  }
+
+  public getPositionX(): number {
+    return this.fishMesh.position.x;
+  }
+
+  /**
+   * Gets the Bounding Box (collision box) for the fish
+   * @returns The current THREE.Box3 of the fish
+   */
+  public getBoundingBox(): THREE.Box3 {
+    return this.boundingBox;
   }
 
   /**
